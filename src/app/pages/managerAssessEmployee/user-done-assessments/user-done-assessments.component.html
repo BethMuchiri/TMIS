@@ -1,1 +1,44 @@
-<p>user-done-assessments works!</p>
+<div class="container" *ngIf="assess; else noAssess">
+    <div class="row">
+        <div class="col-sm-12">
+            <p>Done Assessments awaiting manager Review</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8 d-flex flex-wrap justify-content-between">
+            <div class="card col-sm-4 p-3" *ngFor="let ass of assess">
+                    <a [routerLink]="'/employeeAssess/' + ass.assessmentId">
+                        <p>{{ass.assessmentName}}</p>
+                        <p>{{ass.assessmentName.substring(0,50)}}...</p>
+                    </a>
+                </div>
+        </div>
+        <div class="col-sm-4">
+            <h5>Total assessments</h5>
+            <p>Done by all</p>
+            <p>Not done at all</p>
+            <p>Best performed</p>
+            <p>Poorly perfomed</p>
+        </div>
+        
+    </div>
+</div>
+
+<ng-template #noAssess>
+    <div class="container">
+        <div class="row d-flex align-items-center">
+            <div class="col-sm-8">
+                <h3 class="text-center">Oooops</h3>
+                <p>There are currently no done assessments</p>
+
+            </div>
+            <div class="col-sm-4">
+                <h5>Total assessments</h5>
+                <p>Done by all</p>
+                <p>Not done at all</p>
+                <p>Best performed</p>
+                <p>Poorly perfomed</p>
+            </div>
+        </div>
+    </div>
+</ng-template>

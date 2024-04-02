@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -8,56 +8,22 @@ import { ViewDialogComponent } from './components/view-dialog/view-dialog.compon
 import { DialogViewComponent } from '../dialog-view/dialog-view.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { HttpServiceService } from '../../services/http-service.service';
+import { HttpClient } from '@angular/common/http';
+import { DoneByComponent } from './done-by/done-by.component';
+
 
 
 
 
 export interface IEmployeeData{
-  id: number;
-  pf: number;
-  name: string;
-  department: string;
+  userId: number;
+  userType: number;
+  username: string;
+  userFullName: string;
   action: string;
 }
-const employeeData: IEmployeeData[] = [
-  {id:1, pf:777, name:'Grace', department: 'Finance', action: 'View'},
-  {id:2, pf:245, name:'Beth', department: 'Teller', action: 'View'},
-  {id:3, pf:256, name:'Sam', department: 'Nursing', action: 'View'},
-  {id:4, pf:678, name:'Steve', department: 'Teller', action: 'View'},
-  {id:5, pf:687, name:'Maggy', department: 'Cash', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:7, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:8, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:9, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:10, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:11, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:12, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:13, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:14, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:15, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:16, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:17, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:18, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:19, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:20, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:21, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:22, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:23, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:24, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:25, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:26, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
-  {id:6, pf:245, name:'Augustine', department: 'Manager', action: 'View'},
 
-
-]
 @Component({
   selector: 'app-asess-my-team',
   templateUrl:'./asess-my-team.component.html',
@@ -66,19 +32,42 @@ const employeeData: IEmployeeData[] = [
 })
 
 export class AsessMyTeamComponent {
+  title: any
+  doneBy = "Done by"
+  description: any
+  systemUser:any
+  assId: any
+  userDoneAssess: any[] = []
+  userNotDoneAssess: any[] = []
 
-  constructor(private router: Router, public dialog: MatDialog) {}
+  dataSource: any
+  displayedColumns: any[] = ['userId', 'userType', 'username', 'userFullName', 'action']
+
+  constructor(private router: Router,private route: ActivatedRoute, public dialog: MatDialog, private http:HttpClient, private server: HttpServiceService) {
+    
+  }
   @ViewChild(MatPaginator,{static: false})
    paginator!: MatPaginator;
-  ngAfterViewInit() {
+
+   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
   }
 
+  ngOnInit(){
+    this.systemUser = JSON.parse(localStorage.getItem("user"))
+    this.route.params.subscribe(params => {
+      this.assId = params['id']; // Access the 'id' parameter from the URL
+      console.log('Test ID:', this.assId);
+      console.log('Manager ID:', this.systemUser.userId);
+    })
+    this.getUserDoneAssessment();
+    console.log("yooooo",this.userDoneAssess)
+
+  }
 
   showDialog(){
     this.dialog.open(DialogViewComponent,{
     })
-  
   }
 
   // method to open the dialog box
@@ -87,23 +76,70 @@ export class AsessMyTeamComponent {
       width: '60%',height: '70%'
     });
   }
-  
-  // dataSource: any = this.employeeData
-  displayedColumns: any = ['id', 'pf', 'name', 'department', 'action']
-  dataSource = new MatTableDataSource(employeeData);
 
-
-
-    // method to handle button click
-    goToAssessMyPotential(employeeId:number): void {
-      console.log('Button clicked!')
-      this.router.navigate(['/assess-my-potential', employeeId] ); //Navigate to AssessMyPotentialComponent
-      
-    }
+    
 
   // Method to apply filters to the table
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  getUserDoneAssessment(){
+    const url = `${this.server.serverUrl}/doneAssessmentDetails?assId=${this.assId}&managerId=${this.systemUser.userId}`
+    const response = this.http.get(url);
+
+    response.subscribe(
+      (value: any) => {
+        console.log(value)
+        this.title = value.item.assessmentName
+        this.description = value.item.assessmentDescription
+        for(let i = 0; i < value.item.doneBy.length; i++){
+          const emp: IEmployeeData = {
+            userId: value.item.doneBy[i].userId,
+            userType: value.item.doneBy[i].userType,
+            username: value.item.doneBy[i].username,
+            userFullName: value.item.doneBy[i].userFullName,
+            action: 'view'
+          } 
+          this.userDoneAssess.push(emp)
+        }
+        if(value.item.notDoneBy.length){
+          for(let i = 0; i < value.item.notDoneBy.length; i++){
+            const emp: IEmployeeData = {
+              userId: value.item.notDoneBy[i].userId,
+              userType: value.item.notDoneBy[i].userType,
+              username: value.item.notDoneBy[i].username,
+              userFullName: value.item.notDoneBy[i].userFullName,
+              action: 'view'
+            } 
+            this.userNotDoneAssess.push(emp)
+          }
+        }
+        
+    this.dataSource = new MatTableDataSource<IEmployeeData>(this.userDoneAssess);
+
+        console.log("user Done assessments",this.userDoneAssess)
+      },
+      (error: any) => {
+          console.log(error)
+      }
+    )
+  }
+
+  showNotDoneBy(){
+    this.doneBy = "Not done by"
+    this.dataSource = new MatTableDataSource<IEmployeeData>(this.userNotDoneAssess);
+  }
+  showDoneBy(){
+    this.doneBy = "Done by"
+    this.dataSource = new MatTableDataSource<IEmployeeData>(this.userDoneAssess);
+  }
+
+  // method to handle button click
+  goToAssessMyPotential(employeeId:number): void {
+    console.log('Button clicked!')
+    this.router.navigate(['/assess-my-employee', employeeId, this.assId] ); // Navigate to AssessMyPotentialComponent
+    
   }
 }
