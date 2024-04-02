@@ -60,6 +60,7 @@ import { ManagerAssessEmployeeComponent } from './pages/managerAssessEmployee/ma
 import { AddAttributeComponent } from './pages/add-attribute/add-attribute.component';
 import { MyAssessmentsComponent } from './pages/self-assessment/my-assessments/my-assessments.component';
 import { UserDoneAssessmentsComponent } from './pages/managerAssessEmployee/user-done-assessments/user-done-assessments.component';
+import { DoneByComponent } from './pages/asess-my-team/done-by/done-by.component';
 
 @NgModule({
   declarations: [
@@ -93,7 +94,8 @@ import { UserDoneAssessmentsComponent } from './pages/managerAssessEmployee/user
     ManagerAssessEmployeeComponent,
     AddAttributeComponent,
     MyAssessmentsComponent,
-    UserDoneAssessmentsComponent
+    UserDoneAssessmentsComponent,
+    DoneByComponent
    
   ],
   imports: [

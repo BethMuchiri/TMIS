@@ -19,22 +19,6 @@ export class ManagerAssessComponent implements OnInit{
     this.systemUser = JSON.parse(localStorage.getItem("user"))
   }
 
-  getUserDoneAssements(){
-    const url = `${this.server.serverUrl}/getDoneAssessments`
-    const response = this.http.get(url);
-    response.subscribe(
-      (value: any) => {
-        console.log(value)
-        for(let i = 0; i < value.item.length; i++){
-          if(value.item[i].managerId == this.systemUser.userId){
-            this.assessments.push(value.item);
-          }
-        }
-      },
-      (error: any) => {
-        console.log(error)
-      }
-    )
-  }
+  
 
 }
